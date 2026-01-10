@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { XMLParser } from 'fast-xml-parser'
 import { insertArticle, getArticles } from '../db/schema'
+import { extractYouTubeViews } from '../services/engagement'
 import sources from '../../../config/sources.json'
 
 const app = new Hono()
@@ -55,7 +56,11 @@ async function fetchYouTubeFeed(channelId: string, name: string) {
       content: entry['media:group']?.['media:description'] || null,
       author: entry.author?.name || name,
       published_at: entry.published ? new Date(entry.published).toISOString() : null,
-      fetched_at: now
+      fetched_at: now,
+      engagement_score: null as number | null,
+      engagement_raw: null as string | null,
+      engagement_type: null as string | null,
+      engagement_fetched_at: null as string | null
     }))
   } catch (error) {
     console.error(`Error fetching YouTube channel ${name}:`, error)
@@ -69,9 +74,23 @@ app.post('/refresh', async (c) => {
   for (const channel of sources.youtube) {
     try {
       const articles = await fetchYouTubeFeed(channel.channelId, channel.name)
+
+      // Fetch engagement for each video (limit concurrency to avoid rate limiting)
       for (const article of articles) {
+        try {
+          const engagement = await extractYouTubeViews(article.url)
+          if (engagement) {
+            article.engagement_score = engagement.score
+            article.engagement_raw = engagement.raw
+            article.engagement_type = engagement.type
+            article.engagement_fetched_at = new Date().toISOString()
+          }
+        } catch (err) {
+          console.error(`Failed to fetch engagement for ${article.url}:`, err)
+        }
         insertArticle(article)
       }
+
       results.push({ source: channel.name, count: articles.length })
     } catch (error) {
       results.push({ source: channel.name, count: 0, error: String(error) })

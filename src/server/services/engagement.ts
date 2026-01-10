@@ -105,6 +105,80 @@ export async function scrapePageContent(url: string): Promise<string | null> {
 }
 
 /**
+ * Extract YouTube view count from embedded ytInitialData JSON
+ */
+export async function extractYouTubeViews(url: string): Promise<EngagementResult | null> {
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      console.error(`Failed to fetch YouTube page ${url}: ${response.status}`)
+      return null
+    }
+
+    const html = await response.text()
+
+    // Try to find viewCount in ytInitialData or ytInitialPlayerResponse
+    // Pattern 1: "viewCount":"12345"
+    const viewCountMatch = html.match(/"viewCount":\s*"(\d+)"/)
+    if (viewCountMatch) {
+      const views = parseInt(viewCountMatch[1], 10)
+      return {
+        score: normalizeEngagement(views, 'youtube'),
+        raw: views.toLocaleString(),
+        type: 'views'
+      }
+    }
+
+    // Pattern 2: "shortViewCount":{"simpleText":"1.2M views"}
+    const shortViewMatch = html.match(/"shortViewCount":\s*\{\s*"simpleText":\s*"([^"]+)"/)
+    if (shortViewMatch) {
+      const viewText = shortViewMatch[1].replace(/\s*views?/i, '')
+      const views = parseEngagementNumber(viewText)
+      if (views > 0) {
+        return {
+          score: normalizeEngagement(views, 'youtube'),
+          raw: viewText,
+          type: 'views'
+        }
+      }
+    }
+
+    // Pattern 3: "viewCount":{"simpleText":"1,234,567 views"}
+    const viewCountTextMatch = html.match(/"viewCount":\s*\{\s*"simpleText":\s*"([^"]+)"/)
+    if (viewCountTextMatch) {
+      const viewText = viewCountTextMatch[1].replace(/\s*views?/i, '')
+      const views = parseEngagementNumber(viewText)
+      if (views > 0) {
+        return {
+          score: normalizeEngagement(views, 'youtube'),
+          raw: viewText,
+          type: 'views'
+        }
+      }
+    }
+
+    console.log('Could not find view count in YouTube page')
+    return null
+  } catch (error) {
+    console.error(`Error extracting YouTube views from ${url}:`, error)
+    return null
+  }
+}
+
+/**
  * Extract engagement metrics from page content using LLM
  */
 export async function extractEngagementWithLLM(
@@ -205,6 +279,12 @@ export async function fetchEngagementForArticle(
   url: string,
   sourceType: string
 ): Promise<EngagementResult | null> {
+  // Use specialized extraction for YouTube
+  if (sourceType === 'youtube' || url.includes('youtube.com') || url.includes('youtu.be')) {
+    return extractYouTubeViews(url)
+  }
+
+  // For other sources, use LLM extraction
   const content = await scrapePageContent(url)
   if (!content) {
     return null
