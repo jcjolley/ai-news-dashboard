@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 export interface RefreshProgress {
   isOpen: boolean
   currentSource: string
@@ -15,6 +17,8 @@ interface RefreshModalProps {
 }
 
 export default function RefreshModal({ isOpen, progress, onClose }: RefreshModalProps) {
+  const [isMinimized, setIsMinimized] = useState(false)
+
   if (!isOpen) return null
 
   const completedCount = progress.completedSources.length
@@ -43,37 +47,82 @@ export default function RefreshModal({ isOpen, progress, onClose }: RefreshModal
   }
 
   const allSourcesComplete = completedCount === progress.totalSources
+  const isFullyComplete = allSourcesComplete && progress.engagementStatus === 'complete'
+
+  // Minimized view - just a small progress indicator
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 px-4 py-2 hover:shadow-xl transition-shadow"
+        >
+          <div className="relative w-5 h-5">
+            <svg className="w-5 h-5 text-blue-600 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {completedCount}/{progress.totalSources}
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {totalArticles} articles
+          </span>
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 dark:bg-black/70"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-          Refreshing Sources
-        </h2>
+    <div className="fixed bottom-4 right-4 z-50 w-72">
+      {/* Floating Panel */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Refreshing Sources
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsMinimized(true)}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title="Minimize"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+              </svg>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title="Close"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-            <span>Progress</span>
+        <div className="px-3 pt-2">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
             <span>{completedCount}/{progress.totalSources} sources</span>
+            <span>{totalArticles} articles</span>
           </div>
-          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-600 transition-all duration-300 ease-out"
+              className={`h-full transition-all duration-300 ease-out ${
+                isFullyComplete ? 'bg-green-500' : 'bg-blue-600'
+              }`}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
 
         {/* Source List */}
-        <div className="space-y-2 mb-4">
+        <div className="px-3 py-2 space-y-1 max-h-48 overflow-y-auto">
           {SOURCE_ORDER.map(sourceName => {
             const status = getSourceStatus(sourceName)
             const count = getSourceCount(sourceName)
@@ -82,10 +131,10 @@ export default function RefreshModal({ isOpen, progress, onClose }: RefreshModal
             return (
               <div
                 key={sourceName}
-                className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-50 dark:bg-gray-700/50"
+                className="flex items-center justify-between text-xs"
               >
-                <div className="flex items-center gap-2">
-                  <span className="w-5 text-center">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 text-center">
                     {status === 'complete' && (
                       <span className="text-green-600 dark:text-green-400">&#10003;</span>
                     )}
@@ -93,13 +142,13 @@ export default function RefreshModal({ isOpen, progress, onClose }: RefreshModal
                       <span className="text-blue-600 dark:text-blue-400 animate-pulse">&#8987;</span>
                     )}
                     {status === 'pending' && (
-                      <span className="text-gray-400 dark:text-gray-500">&#9675;</span>
+                      <span className="text-gray-300 dark:text-gray-600">&#9675;</span>
                     )}
                     {status === 'error' && (
                       <span className="text-red-600 dark:text-red-400">&#10007;</span>
                     )}
                   </span>
-                  <span className={`text-sm ${
+                  <span className={`${
                     status === 'pending'
                       ? 'text-gray-400 dark:text-gray-500'
                       : 'text-gray-700 dark:text-gray-300'
@@ -107,12 +156,13 @@ export default function RefreshModal({ isOpen, progress, onClose }: RefreshModal
                     {sourceName}
                   </span>
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {status === 'fetching' && 'fetching...'}
-                  {status === 'pending' && 'pending'}
-                  {status === 'complete' && `${count} articles`}
+                <span className="text-gray-400 dark:text-gray-500">
+                  {status === 'fetching' && (
+                    <span className="animate-pulse">...</span>
+                  )}
+                  {status === 'complete' && count}
                   {status === 'error' && (
-                    <span className="text-red-600 dark:text-red-400 text-xs">{error || 'error'}</span>
+                    <span className="text-red-500 dark:text-red-400" title={error || 'error'}>err</span>
                   )}
                 </span>
               </div>
@@ -122,38 +172,39 @@ export default function RefreshModal({ isOpen, progress, onClose }: RefreshModal
 
         {/* Engagement Status */}
         {allSourcesComplete && progress.engagementStatus !== 'pending' && (
-          <div className="flex items-center gap-2 py-2 px-3 rounded bg-purple-50 dark:bg-purple-900/30 mb-4">
-            {progress.engagementStatus === 'calculating' && (
-              <>
-                <span className="text-purple-600 dark:text-purple-400 animate-pulse">&#8987;</span>
-                <span className="text-sm text-purple-700 dark:text-purple-300">
-                  Calculating engagement scores...
-                </span>
-              </>
-            )}
-            {progress.engagementStatus === 'complete' && (
-              <>
-                <span className="text-purple-600 dark:text-purple-400">&#10003;</span>
-                <span className="text-sm text-purple-700 dark:text-purple-300">
-                  Engagement scores updated
-                </span>
-              </>
-            )}
+          <div className="px-3 pb-2">
+            <div className="flex items-center gap-1.5 text-xs py-1.5 px-2 rounded bg-purple-50 dark:bg-purple-900/30">
+              {progress.engagementStatus === 'calculating' && (
+                <>
+                  <span className="text-purple-600 dark:text-purple-400 animate-pulse">&#8987;</span>
+                  <span className="text-purple-700 dark:text-purple-300">
+                    Calculating engagement...
+                  </span>
+                </>
+              )}
+              {progress.engagementStatus === 'complete' && (
+                <>
+                  <span className="text-purple-600 dark:text-purple-400">&#10003;</span>
+                  <span className="text-purple-700 dark:text-purple-300">
+                    Engagement updated
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Total */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Total: {totalArticles} articles
-          </span>
-          <button
-            onClick={onClose}
-            className="text-sm px-3 py-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            Close
-          </button>
-        </div>
+        {/* Done state */}
+        {isFullyComplete && (
+          <div className="px-3 pb-3">
+            <button
+              onClick={onClose}
+              className="w-full text-xs py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+            >
+              Done — {totalArticles} articles fetched
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

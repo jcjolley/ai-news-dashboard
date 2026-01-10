@@ -44,7 +44,16 @@
 
     { "name": "Hacker Noon AI", "url": "https://hackernoon.com/tagged/ai/feed" },
     { "name": "MarkTechPost", "url": "https://www.marktechpost.com/feed" },
-    { "name": "KDnuggets", "url": "https://www.kdnuggets.com/feed" }
+    { "name": "KDnuggets", "url": "https://www.kdnuggets.com/feed" },
+
+    { "name": "GitHub Blog", "url": "https://github.blog/feed/" },
+    { "name": "The New Stack", "url": "https://thenewstack.io/feed/" },
+    { "name": "Builder.io", "url": "https://www.builder.io/blog/rss.xml" },
+    { "name": "Agentic Engineer", "url": "https://agenticengineer.com/rss.xml" },
+    { "name": "Dev.to AI", "url": "https://dev.to/feed/tag/ai" },
+    { "name": "Smashing Magazine", "url": "https://www.smashingmagazine.com/feed/" },
+    { "name": "CSS Tricks", "url": "https://css-tricks.com/feed/" },
+    { "name": "LogRocket Blog", "url": "https://blog.logrocket.com/feed/" }
   ],
   "podcasts": [
     { "name": "Rate Limited", "url": "https://rss.buzzsprout.com/2543066.rss" },
@@ -53,7 +62,11 @@
     { "name": "TWIML AI", "url": "https://twimlai.com/feed" },
     { "name": "Gradient Dissent", "url": "https://feeds.captivate.fm/gradient-dissent/" },
     { "name": "The AI Breakdown", "url": "https://feeds.libsyn.com/468519/rss" },
-    { "name": "Eye On AI", "url": "https://aneyeonai.libsyn.com/rss" }
+    { "name": "Eye On AI", "url": "https://aneyeonai.libsyn.com/rss" },
+    { "name": "AI Native Dev", "url": "https://rss.buzzsprout.com/2375985.rss" },
+    { "name": "Changelog", "url": "https://changelog.com/podcast/feed" },
+    { "name": "Syntax.fm", "url": "https://feed.syntax.fm/rss" },
+    { "name": "Shop Talk Show", "url": "https://shoptalkshow.com/feed/podcast" }
   ],
   "reddit": [
     "MachineLearning",
@@ -63,7 +76,14 @@
     "ChatGPT",
     "Cursor",
     "singularity",
-    "aipromptprogramming"
+    "aipromptprogramming",
+    "CodingWithAI",
+    "vibecoding",
+    "ArtificialIntelligence",
+    "learnprogramming",
+    "webdev",
+    "programming",
+    "SideProject"
   ],
   "youtube": [
     { "name": "Yannic Kilcher", "channelId": "UCZHmQk67mSJgfCCTn7xBfew" },
@@ -78,9 +98,19 @@
     { "name": "1littlecoder", "channelId": "UCpV_X0VrL8-jg3t6wYGS-1g" },
     { "name": "All About AI", "channelId": "UCR9j1jqqB5Rse69wjUnbYwA" },
     { "name": "sentdex", "channelId": "UCfzlCWGWYyIQ0aLC5w48gBQ" },
-    { "name": "Jeremy Howard", "channelId": "UCX7Y2qWriXpqocG97SFW2OQ" }
+    { "name": "Jeremy Howard", "channelId": "UCX7Y2qWriXpqocG97SFW2OQ" },
+    { "name": "Nate B Jones", "channelId": "UC0C-17n9iuUQPylguM1d-lQ" },
+    { "name": "Theo (t3.gg)", "channelId": "UCbRP3c757lWg9M-U7TyEkXA" },
+    { "name": "Matthew Berman", "channelId": "UCawZsQWqfGSbCI5yjkdVkTA" },
+    { "name": "Wes Roth", "channelId": "UCqcbQf6yw5KzRoDDcZ_wBSw" },
+    { "name": "Greg Isenberg", "channelId": "UCPjNBjflYl0-HQtUvOx0Ibw" },
+    { "name": "IndyDevDan", "channelId": "UC_x36zCEGilGpB1m-V4gmjg" },
+    { "name": "NetworkChuck", "channelId": "UC9x0AN7BWHpCDHSm9NiJFJQ" },
+    { "name": "Traversy Media", "channelId": "UC29ju8bIPH5as8OGnQzwJyA" },
+    { "name": "The Primeagen", "channelId": "UC8ENHE5xdFSwx71u3fDH5Xw" },
+    { "name": "Web Dev Simplified", "channelId": "UCFbNIlppjAuEX4znoulh0Cw" }
   ],
   "hackernews": {
-    "keywords": ["AI", "LLM", "GPT", "Claude", "Opus" ,"machine learning", "OpenAI", "Anthropic", "DeepMind", "Cursor", "Copilot", "agent", "agentic", "coding assistant", "Windsurf", "Claude Code"]
+    "keywords": ["AI", "LLM", "GPT", "Claude", "Opus", "machine learning", "OpenAI", "Anthropic", "DeepMind", "Cursor", "Copilot", "agent", "agentic", "coding assistant", "Windsurf", "Claude Code", "vibe coding", "MCP", "Model Context Protocol", "context engineering", "Cline", "Aider", "Bolt", "v0", "Lovable", "AI coding", "prompt engineering", "RAG", "AI agent"]
   }
 }
