@@ -79,11 +79,7 @@
     "aipromptprogramming",
     "CodingWithAI",
     "vibecoding",
-    "ArtificialIntelligence",
-    "learnprogramming",
-    "webdev",
-    "programming",
-    "SideProject"
+    "ArtificialIntelligence"
   ],
   "youtube": [
     { "name": "Yannic Kilcher", "channelId": "UCZHmQk67mSJgfCCTn7xBfew" },
@@ -111,6 +107,6 @@
     { "name": "Web Dev Simplified", "channelId": "UCFbNIlppjAuEX4znoulh0Cw" }
   ],
   "hackernews": {
-    "keywords": ["AI", "LLM", "GPT", "Claude", "Opus", "machine learning", "OpenAI", "Anthropic", "DeepMind", "Cursor", "Copilot", "agent", "agentic", "coding assistant", "Windsurf", "Claude Code", "vibe coding", "MCP", "Model Context Protocol", "context engineering", "Cline", "Aider", "Bolt", "v0", "Lovable", "AI coding", "prompt engineering", "RAG", "AI agent"]
+    "keywords": ["GPT", "Claude", "Opus", "machine learning", "OpenAI", "Anthropic", "DeepMind", "Cursor", "Copilot", "agent", "agentic", "coding assistant", "Windsurf", "Claude Code", "vibe coding", "MCP", "Model Context Protocol", "context engineering", "AI coding", "prompt engineering", "AI agent", "Gemini", "Opus", "Sonnet", "Haiku"]
   }
 }

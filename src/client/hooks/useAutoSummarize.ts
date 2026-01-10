@@ -9,7 +9,8 @@ interface AutoSummarizeState {
 
 export function useAutoSummarize(
   articles: Article[],
-  summarize: (id: string) => Promise<string | null>
+  summarize: (id: string) => Promise<string | null>,
+  onScrollPast?: (id: string) => void
 ) {
   const [state, setState] = useState<AutoSummarizeState>({
     isAutoSummarizing: false,
@@ -105,7 +106,12 @@ export function useAutoSummarize(
           if (entry.isIntersecting) {
             visibleIds.current.add(id)
           } else {
+            // Article was scrolled past (left viewport)
+            const wasVisible = visibleIds.current.has(id)
             visibleIds.current.delete(id)
+            if (wasVisible && onScrollPast) {
+              onScrollPast(id)
+            }
           }
         })
 
@@ -123,7 +129,7 @@ export function useAutoSummarize(
     return () => {
       observerRef.current?.disconnect()
     }
-  }, [processQueue])
+  }, [processQueue, onScrollPast])
 
   useEffect(() => {
     abortRef.current = false

@@ -3,7 +3,15 @@
     "allow": [
       "Bash(bun run build)",
       "Bash(bun run dev)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(docker-compose up:*)",
+      "Bash(docker info:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(tasklist:*)",
+      "Bash(git add:*)",
+      "Bash(bun test:*)",
+      "Bash(git commit:*)",
+      "Bash(curl:*)"
     ]
   }
 }

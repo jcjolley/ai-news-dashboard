@@ -73,7 +73,7 @@ export default function App() {
     isAutoSummarizing,
     currentArticleId: autoSummarizingId,
     progress: autoSummarizeProgress
-  } = useAutoSummarize(filteredArticles, summarize)
+  } = useAutoSummarize(filteredArticles, summarize, markAsRead)
 
   const handleSummarize = async (article: Article) => {
     setSummarizing(article.id)
