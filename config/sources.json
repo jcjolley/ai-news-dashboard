@@ -1,0 +1,21 @@
+{
+  "rss": [
+    { "name": "Anthropic", "url": "https://www.anthropic.com/feed.xml" },
+    { "name": "OpenAI", "url": "https://openai.com/blog/rss.xml" },
+    { "name": "DeepMind", "url": "https://deepmind.google/blog/rss.xml" },
+    { "name": "arXiv cs.CL", "url": "https://arxiv.org/rss/cs.CL" },
+    { "name": "arXiv cs.LG", "url": "https://arxiv.org/rss/cs.LG" }
+  ],
+  "reddit": [
+    "MachineLearning",
+    "LocalLLaMA",
+    "artificial"
+  ],
+  "youtube": [
+    { "name": "AI Explained", "channelId": "UCNF0LEQ2abMr0PAX3cfkAMg" },
+    { "name": "Yannic Kilcher", "channelId": "UCZHmQk67mSJgfCCTn7xBfew" }
+  ],
+  "hackernews": {
+    "keywords": ["AI", "LLM", "GPT", "Claude", "machine learning", "neural", "transformer", "OpenAI", "Anthropic", "DeepMind"]
+  }
+}
