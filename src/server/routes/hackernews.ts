@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { insertArticle, getArticles } from '../db/schema'
+import { normalizeEngagement } from '../services/engagement'
 import sources from '../../../config/sources.json'
 
 const app = new Hono()
@@ -14,6 +15,8 @@ interface HNItem {
   by: string
   time: number
   type: string
+  score?: number
+  descendants?: number
 }
 
 async function fetchItem(id: number): Promise<HNItem | null> {
@@ -54,6 +57,7 @@ app.post('/refresh', async (c) => {
 
       if (!matchesKeywords(item.title, keywords)) continue
 
+      const score = item.score || 0
       const article = {
         id: `hn-${item.id}`,
         source_type: 'hackernews',
@@ -63,7 +67,11 @@ app.post('/refresh', async (c) => {
         content: item.text || null,
         author: item.by,
         published_at: new Date(item.time * 1000).toISOString(),
-        fetched_at: now
+        fetched_at: now,
+        engagement_score: normalizeEngagement(score, 'hackernews'),
+        engagement_raw: String(score),
+        engagement_type: 'points',
+        engagement_fetched_at: now
       }
 
       insertArticle(article)

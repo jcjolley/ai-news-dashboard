@@ -12,7 +12,13 @@ export interface Article {
   fetched_at: string
   is_read: number
   summary: string | null
+  engagement_score: number | null
+  engagement_raw: string | null
+  engagement_type: string | null
+  engagement_fetched_at: string | null
 }
+
+export type SortOrder = 'recent' | 'engagement'
 
 export interface RefreshResult {
   source: string
@@ -26,13 +32,14 @@ export function useNews() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchArticles = useCallback(async (sourceType?: string) => {
+  const fetchArticles = useCallback(async (sourceType?: string, sort: SortOrder = 'recent') => {
     setLoading(true)
     setError(null)
     try {
-      const url = sourceType
-        ? `/api/articles?source=${sourceType}`
-        : '/api/articles'
+      const params = new URLSearchParams()
+      if (sourceType) params.set('source', sourceType)
+      params.set('sort', sort)
+      const url = `/api/articles?${params.toString()}`
       const response = await fetch(url)
       if (!response.ok) throw new Error('Failed to fetch articles')
       const data = await response.json()

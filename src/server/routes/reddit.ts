@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { insertArticle, getArticles } from '../db/schema'
+import { normalizeEngagement } from '../services/engagement'
 import sources from '../../../config/sources.json'
 
 const app = new Hono()
@@ -14,6 +15,8 @@ interface RedditPost {
     created_utc: number
     permalink: string
     subreddit: string
+    score: number
+    num_comments: number
   }
 }
 
@@ -53,7 +56,11 @@ async function fetchSubreddit(subreddit: string) {
       content: post.data.selftext || null,
       author: post.data.author,
       published_at: new Date(post.data.created_utc * 1000).toISOString(),
-      fetched_at: now
+      fetched_at: now,
+      engagement_score: normalizeEngagement(post.data.score, 'reddit'),
+      engagement_raw: String(post.data.score),
+      engagement_type: 'upvotes',
+      engagement_fetched_at: now
     }))
   } catch (error) {
     console.error(`Error fetching r/${subreddit}:`, error)

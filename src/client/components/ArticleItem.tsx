@@ -32,6 +32,23 @@ function formatDate(dateString: string | null): string {
   return date.toLocaleDateString()
 }
 
+function formatEngagement(raw: string | null, type: string | null): string {
+  if (!raw) return ''
+  const num = parseInt(raw, 10)
+  if (isNaN(num)) return raw
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}k`
+  return raw
+}
+
+const ENGAGEMENT_ICONS: Record<string, string> = {
+  upvotes: '\u2191',  // ↑
+  points: '\u25CF',   // ●
+  views: '\uD83D\uDC41',  // 👁
+  likes: '\u2764',    // ❤
+  comments: '\uD83D\uDCAC'  // 💬
+}
+
 export default function ArticleItem({
   article,
   onMarkAsRead,
@@ -82,6 +99,12 @@ export default function ArticleItem({
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 {formatDate(article.published_at)}
               </span>
+              {article.engagement_raw && article.engagement_type && (
+                <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                  <span>{ENGAGEMENT_ICONS[article.engagement_type] || ''}</span>
+                  <span>{formatEngagement(article.engagement_raw, article.engagement_type)}</span>
+                </span>
+              )}
             </div>
             <h3
               onClick={handleClick}

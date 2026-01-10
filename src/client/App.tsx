@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNews, Article } from './hooks/useNews'
+import { useNews, Article, type SortOrder } from './hooks/useNews'
 import { useAutoSummarize } from './hooks/useAutoSummarize'
 import Dashboard from './components/Dashboard'
 
@@ -26,6 +26,7 @@ export default function App() {
 
   const [selectedSource, setSelectedSource] = useState('')
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
+  const [sortOrder, setSortOrder] = useState<SortOrder>('recent')
   const [summarizing, setSummarizing] = useState<string | null>(null)
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [darkMode, setDarkMode] = useState(() => {
@@ -47,8 +48,8 @@ export default function App() {
   }, [darkMode])
 
   useEffect(() => {
-    fetchArticles(selectedSource || undefined)
-  }, [fetchArticles, selectedSource])
+    fetchArticles(selectedSource || undefined, sortOrder)
+  }, [fetchArticles, selectedSource, sortOrder])
 
   const filteredArticles = showUnreadOnly
     ? articles.filter(a => a.is_read === 0)
@@ -153,6 +154,30 @@ export default function App() {
             />
             Unread only
           </label>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Sort:</span>
+            <button
+              onClick={() => setSortOrder('recent')}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                sortOrder === 'recent'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              Most Recent
+            </button>
+            <button
+              onClick={() => setSortOrder('engagement')}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                sortOrder === 'engagement'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              Most Popular
+            </button>
+          </div>
         </div>
 
         <Dashboard
