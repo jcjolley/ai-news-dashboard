@@ -21,12 +21,6 @@ export interface Article {
 export type SortOrder = 'recent' | 'top'
 export type TimePeriod = 'day' | 'week' | 'month' | 'year' | 'all'
 
-export interface RefreshResult {
-  source: string
-  count: number
-  error?: string
-}
-
 export interface RefreshProgress {
   isOpen: boolean
   currentSource: string
@@ -67,20 +61,6 @@ export function useNews() {
       setLoading(false)
     }
   }, [])
-
-  const refreshAll = useCallback(async () => {
-    setRefreshing(true)
-    setError(null)
-    try {
-      const response = await fetch('/api/refresh-all', { method: 'POST' })
-      if (!response.ok) throw new Error('Failed to refresh')
-      await fetchArticles()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setRefreshing(false)
-    }
-  }, [fetchArticles])
 
   const refreshAllWithProgress = useCallback(async () => {
     setRefreshing(true)
@@ -170,19 +150,6 @@ export function useNews() {
     setRefreshProgress(prev => ({ ...prev, isOpen: false }))
   }, [])
 
-  const refreshSource = useCallback(async (source: string) => {
-    setRefreshing(true)
-    try {
-      const response = await fetch(`/api/${source}/refresh`, { method: 'POST' })
-      if (!response.ok) throw new Error(`Failed to refresh ${source}`)
-      await fetchArticles()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setRefreshing(false)
-    }
-  }, [fetchArticles])
-
   const markAsRead = useCallback(async (id: string) => {
     try {
       await fetch(`/api/articles/${id}/read`, { method: 'POST' })
@@ -230,11 +197,9 @@ export function useNews() {
     refreshing,
     error,
     fetchArticles,
-    refreshAll,
     refreshAllWithProgress,
     refreshProgress,
     closeRefreshModal,
-    refreshSource,
     markAsRead,
     summarize
   }

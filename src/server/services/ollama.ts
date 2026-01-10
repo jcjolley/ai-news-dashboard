@@ -60,14 +60,3 @@ export async function checkOllamaHealth(): Promise<boolean> {
     return false
   }
 }
-
-export async function listModels(): Promise<string[]> {
-  try {
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`)
-    if (!response.ok) return []
-    const data = await response.json() as { models: { name: string }[] }
-    return data.models.map(m => m.name)
-  } catch {
-    return []
-  }
-}

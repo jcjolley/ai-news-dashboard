@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { XMLParser } from 'fast-xml-parser'
 import { insertArticle, getArticles } from '../db/schema'
+import { generateArticleId } from '../utils/hash'
 import sources from '../../../config/sources.json'
 
 const app = new Hono()
@@ -27,17 +28,6 @@ interface RSSFeed {
   feed?: {
     entry: RSSItem | RSSItem[]
   }
-}
-
-function generateId(url: string, title: string): string {
-  const str = `${url}-${title}`
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash
-  }
-  return `rss-${Math.abs(hash).toString(36)}`
 }
 
 async function fetchRSSFeed(url: string, name: string) {
@@ -69,7 +59,7 @@ async function fetchRSSFeed(url: string, name: string) {
     const now = new Date().toISOString()
 
     return items.slice(0, 20).map(item => ({
-      id: generateId(item.link, item.title),
+      id: generateArticleId('rss', item.link, item.title),
       source_type: 'rss',
       source_name: name,
       title: item.title || 'Untitled',

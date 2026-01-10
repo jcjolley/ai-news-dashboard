@@ -13,6 +13,14 @@ const SOURCE_TYPES = [
   { key: 'youtube', label: 'YouTube' }
 ]
 
+const TIME_PERIODS: { value: TimePeriod; label: string }[] = [
+  { value: 'day', label: 'Today' },
+  { value: 'week', label: 'This Week' },
+  { value: 'month', label: 'This Month' },
+  { value: 'year', label: 'This Year' },
+  { value: 'all', label: 'All Time' }
+]
+
 export default function App() {
   const {
     articles,
@@ -196,17 +204,11 @@ export default function App() {
               </button>
               {showTimePeriodDropdown && (
                 <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10 min-w-[120px]">
-                  {[
-                    { value: 'day', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' },
-                    { value: 'year', label: 'This Year' },
-                    { value: 'all', label: 'All Time' }
-                  ].map(option => (
+                  {TIME_PERIODS.map(option => (
                     <button
                       key={option.value}
                       onClick={() => {
-                        setTimePeriod(option.value as TimePeriod)
+                        setTimePeriod(option.value)
                         setShowTimePeriodDropdown(false)
                       }}
                       className={`w-full px-3 py-1.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
@@ -223,7 +225,7 @@ export default function App() {
             </div>
             {sortOrder === 'top' && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                ({timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === 'year' ? 'This Year' : 'All Time'})
+                ({TIME_PERIODS.find(p => p.value === timePeriod)?.label})
               </span>
             )}
           </div>

@@ -1,15 +1,13 @@
 import { Hono } from 'hono'
 import { getArticleById, saveSummary } from '../db/schema'
-import { summarizeText, checkOllamaHealth, listModels } from '../services/ollama'
+import { summarizeText, checkOllamaHealth } from '../services/ollama'
 
 const app = new Hono()
 
 app.get('/health', async (c) => {
   const healthy = await checkOllamaHealth()
-  const models = healthy ? await listModels() : []
   return c.json({
     healthy,
-    models,
     message: healthy ? 'Ollama is running' : 'Ollama is not available'
   })
 })
