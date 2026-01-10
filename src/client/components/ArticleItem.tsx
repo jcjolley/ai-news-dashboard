@@ -12,6 +12,7 @@ interface ArticleItemProps {
 
 const SOURCE_COLORS: Record<string, string> = {
   rss: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  podcast: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
   reddit: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   hackernews: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
   youtube: 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200'

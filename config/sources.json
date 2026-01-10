@@ -2,20 +2,85 @@
   "rss": [
     { "name": "Anthropic", "url": "https://www.anthropic.com/feed.xml" },
     { "name": "OpenAI", "url": "https://openai.com/blog/rss.xml" },
-    { "name": "DeepMind", "url": "https://deepmind.google/blog/rss.xml" },
+    { "name": "DeepMind", "url": "https://deepmind.com/blog/feed/basic/" },
+    { "name": "Google AI Blog", "url": "http://googleaiblog.blogspot.com/atom.xml" },
+    { "name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/" },
+    { "name": "NVIDIA AI", "url": "https://developer.nvidia.com/blog/feed" },
+    { "name": "Hugging Face", "url": "https://huggingface.co/blog/feed.xml" },
+    { "name": "LangChain", "url": "https://blog.langchain.dev/rss/" },
+    { "name": "Replicate", "url": "https://replicate.com/blog/rss" },
+
+    { "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/" },
+    { "name": "Chip Huyen", "url": "https://huyenchip.com/feed" },
+    { "name": "Eugene Yan", "url": "https://eugeneyan.com/rss/" },
+    { "name": "Sebastian Raschka", "url": "https://magazine.sebastianraschka.com/feed" },
+    { "name": "One Useful Thing", "url": "https://www.oneusefulthing.org/feed" },
+
+    { "name": "Latent Space", "url": "https://www.latent.space/feed" },
+    { "name": "The Gradient", "url": "https://thegradient.pub/rss/" },
+    { "name": "Last Week in AI", "url": "https://lastweekin.ai/feed" },
+    { "name": "The Rundown AI", "url": "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml" },
+    { "name": "AI Snake Oil", "url": "https://aisnakeoil.substack.com/feed" },
+    { "name": "Interconnects", "url": "https://www.interconnects.ai/feed" },
+    { "name": "TheSequence", "url": "https://thesequence.substack.com/feed" },
+
+    { "name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/" },
+    { "name": "MIT Tech Review", "url": "https://www.technologyreview.com/feed/" },
+    { "name": "Ars Technica", "url": "https://feeds.arstechnica.com/arstechnica/index" },
+    { "name": "The Verge", "url": "https://www.theverge.com/rss/index.xml" },
+    { "name": "Wired AI", "url": "https://www.wired.com/feed/tag/ai/latest/rss" },
+    { "name": "TechCrunch", "url": "https://techcrunch.com/feed/" },
+    { "name": "The Decoder", "url": "https://the-decoder.com/feed/" },
+
+    { "name": "BAIR Berkeley", "url": "https://bair.berkeley.edu/blog/feed.xml" },
+    { "name": "Stanford CRFM", "url": "https://crfm.stanford.edu/feed" },
+    { "name": "CMU ML Blog", "url": "https://blog.ml.cmu.edu/feed" },
+    { "name": "MIT AI News", "url": "https://news.mit.edu/topic/mitmachine-learning-rss.xml" },
+    { "name": "EleutherAI", "url": "https://blog.eleuther.ai/index.xml" },
+
+    { "name": "arXiv cs.AI", "url": "https://arxiv.org/rss/cs.AI" },
     { "name": "arXiv cs.CL", "url": "https://arxiv.org/rss/cs.CL" },
-    { "name": "arXiv cs.LG", "url": "https://arxiv.org/rss/cs.LG" }
+    { "name": "arXiv cs.LG", "url": "https://arxiv.org/rss/cs.LG" },
+
+    { "name": "Hacker Noon AI", "url": "https://hackernoon.com/tagged/ai/feed" },
+    { "name": "MarkTechPost", "url": "https://www.marktechpost.com/feed" },
+    { "name": "KDnuggets", "url": "https://www.kdnuggets.com/feed" }
+  ],
+  "podcasts": [
+    { "name": "Rate Limited", "url": "https://rss.buzzsprout.com/2543066.rss" },
+    { "name": "Latent Space Podcast", "url": "https://api.substack.com/feed/podcast/265424/s/1354.rss" },
+    { "name": "Practical AI", "url": "https://changelog.com/practicalai/feed" },
+    { "name": "TWIML AI", "url": "https://twimlai.com/feed" },
+    { "name": "Gradient Dissent", "url": "https://feeds.captivate.fm/gradient-dissent/" },
+    { "name": "The AI Breakdown", "url": "https://feeds.libsyn.com/468519/rss" },
+    { "name": "Eye On AI", "url": "https://aneyeonai.libsyn.com/rss" }
   ],
   "reddit": [
     "MachineLearning",
     "LocalLLaMA",
-    "artificial"
+    "artificial",
+    "ClaudeAI",
+    "ChatGPT",
+    "Cursor",
+    "singularity",
+    "aipromptprogramming"
   ],
   "youtube": [
-    { "name": "AI Explained", "channelId": "UCNF0LEQ2abMr0PAX3cfkAMg" },
-    { "name": "Yannic Kilcher", "channelId": "UCZHmQk67mSJgfCCTn7xBfew" }
+    { "name": "Yannic Kilcher", "channelId": "UCZHmQk67mSJgfCCTn7xBfew" },
+    { "name": "Fireship", "channelId": "UCsBjURrPoezykLs9EqgamOA" },
+    { "name": "Two Minute Papers", "channelId": "UCbfYPyITQ-7l4upoX8nvctg" },
+    { "name": "Matt Wolfe", "channelId": "UChpleBmo18P08aKCIgti38g" },
+    { "name": "David Shapiro", "channelId": "UCvKRFNawVcuz4b9ihUTApCg" },
+    { "name": "Machine Learning Street Talk", "channelId": "UCMLtBahI5DMrt0NPvDSoIRQ" },
+    { "name": "Weights & Biases", "channelId": "UCBp3w4DCEC64FZr4k9ROxig" },
+    { "name": "James Briggs", "channelId": "UCv83tO5cePwHMt1952IVVHw" },
+    { "name": "Sam Witteveen", "channelId": "UC55ODQSvARtgSyc8ThfiepQ" },
+    { "name": "1littlecoder", "channelId": "UCpV_X0VrL8-jg3t6wYGS-1g" },
+    { "name": "All About AI", "channelId": "UCR9j1jqqB5Rse69wjUnbYwA" },
+    { "name": "sentdex", "channelId": "UCfzlCWGWYyIQ0aLC5w48gBQ" },
+    { "name": "Jeremy Howard", "channelId": "UCX7Y2qWriXpqocG97SFW2OQ" }
   ],
   "hackernews": {
-    "keywords": ["AI", "LLM", "GPT", "Claude", "machine learning", "neural", "transformer", "OpenAI", "Anthropic", "DeepMind"]
+    "keywords": ["AI", "LLM", "GPT", "Claude", "Opus" ,"machine learning", "OpenAI", "Anthropic", "DeepMind", "Cursor", "Copilot", "agent", "agentic", "coding assistant", "Windsurf", "Claude Code"]
   }
 }

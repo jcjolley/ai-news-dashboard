@@ -4,6 +4,7 @@ import { serveStatic } from 'hono/bun'
 import { initializeDatabase, getArticles, markAsRead, markAsUnread } from './db/schema'
 
 import feedsRoutes from './routes/feeds'
+import podcastsRoutes from './routes/podcasts'
 import redditRoutes from './routes/reddit'
 import hackernewsRoutes from './routes/hackernews'
 import youtubeRoutes from './routes/youtube'
@@ -16,6 +17,7 @@ const app = new Hono()
 app.use('*', cors())
 
 app.route('/api/feeds', feedsRoutes)
+app.route('/api/podcasts', podcastsRoutes)
 app.route('/api/reddit', redditRoutes)
 app.route('/api/hackernews', hackernewsRoutes)
 app.route('/api/youtube', youtubeRoutes)
@@ -46,6 +48,7 @@ app.post('/api/refresh-all', async (c) => {
 
   const sources = [
     { name: 'feeds', route: feedsRoutes },
+    { name: 'podcasts', route: podcastsRoutes },
     { name: 'reddit', route: redditRoutes },
     { name: 'hackernews', route: hackernewsRoutes },
     { name: 'youtube', route: youtubeRoutes }
