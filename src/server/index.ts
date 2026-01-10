@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/bun'
-import { initializeDatabase, getArticles, markAsRead, markAsUnread, getArticleById, updateEngagement, type SortOrder } from './db/schema'
+import { initializeDatabase, getArticles, markAsRead, markAsUnread, getArticleById, updateEngagement, type SortOrder, type TimePeriod } from './db/schema'
 import { fetchEngagementForArticle } from './services/engagement'
 
 import feedsRoutes from './routes/feeds'
@@ -29,7 +29,8 @@ app.get('/api/articles', (c) => {
   const limit = parseInt(c.req.query('limit') || '100')
   const offset = parseInt(c.req.query('offset') || '0')
   const sort = (c.req.query('sort') || 'recent') as SortOrder
-  const articles = getArticles(source, limit, offset, sort)
+  const period = (c.req.query('period') || 'all') as TimePeriod
+  const articles = getArticles(source, limit, offset, sort, period)
   return c.json(articles)
 })
 

@@ -18,7 +18,8 @@ export interface Article {
   engagement_fetched_at: string | null
 }
 
-export type SortOrder = 'recent' | 'engagement'
+export type SortOrder = 'recent' | 'top'
+export type TimePeriod = 'day' | 'week' | 'month' | 'year' | 'all'
 
 export interface RefreshResult {
   source: string
@@ -47,13 +48,14 @@ export function useNews() {
     engagementStatus: 'pending'
   })
 
-  const fetchArticles = useCallback(async (sourceType?: string, sort: SortOrder = 'recent') => {
+  const fetchArticles = useCallback(async (sourceType?: string, sort: SortOrder = 'recent', period: TimePeriod = 'all') => {
     setLoading(true)
     setError(null)
     try {
       const params = new URLSearchParams()
       if (sourceType) params.set('source', sourceType)
       params.set('sort', sort)
+      if (sort === 'top') params.set('period', period)
       const url = `/api/articles?${params.toString()}`
       const response = await fetch(url)
       if (!response.ok) throw new Error('Failed to fetch articles')

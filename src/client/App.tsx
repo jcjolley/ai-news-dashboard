@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNews, Article, type SortOrder } from './hooks/useNews'
+import { useNews, Article, type SortOrder, type TimePeriod } from './hooks/useNews'
 import { useAutoSummarize } from './hooks/useAutoSummarize'
 import Dashboard from './components/Dashboard'
 import RefreshModal from './components/RefreshModal'
@@ -30,6 +30,8 @@ export default function App() {
   const [selectedSource, setSelectedSource] = useState('')
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [sortOrder, setSortOrder] = useState<SortOrder>('recent')
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
+  const [showTimePeriodDropdown, setShowTimePeriodDropdown] = useState(false)
   const [summarizing, setSummarizing] = useState<string | null>(null)
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [darkMode, setDarkMode] = useState(() => {
@@ -51,8 +53,8 @@ export default function App() {
   }, [darkMode])
 
   useEffect(() => {
-    fetchArticles(selectedSource || undefined, sortOrder)
-  }, [fetchArticles, selectedSource, sortOrder])
+    fetchArticles(selectedSource || undefined, sortOrder, timePeriod)
+  }, [fetchArticles, selectedSource, sortOrder, timePeriod])
 
   const filteredArticles = showUnreadOnly
     ? articles.filter(a => a.is_read === 0)
@@ -161,25 +163,69 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">Sort:</span>
             <button
-              onClick={() => setSortOrder('recent')}
+              onClick={() => {
+                setSortOrder('recent')
+                setShowTimePeriodDropdown(false)
+              }}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 sortOrder === 'recent'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
-              Most Recent
+              New
             </button>
-            <button
-              onClick={() => setSortOrder('engagement')}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                sortOrder === 'engagement'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-              }`}
-            >
-              Most Popular
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => {
+                  if (sortOrder !== 'top') {
+                    setSortOrder('top')
+                  }
+                  setShowTimePeriodDropdown(!showTimePeriodDropdown)
+                }}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                  sortOrder === 'top'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                Top
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showTimePeriodDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10 min-w-[120px]">
+                  {[
+                    { value: 'day', label: 'Today' },
+                    { value: 'week', label: 'This Week' },
+                    { value: 'month', label: 'This Month' },
+                    { value: 'year', label: 'This Year' },
+                    { value: 'all', label: 'All Time' }
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setTimePeriod(option.value as TimePeriod)
+                        setShowTimePeriodDropdown(false)
+                      }}
+                      className={`w-full px-3 py-1.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                        timePeriod === option.value
+                          ? 'text-blue-600 dark:text-blue-400 font-medium'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {sortOrder === 'top' && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === 'year' ? 'This Year' : 'All Time'})
+              </span>
+            )}
           </div>
         </div>
 

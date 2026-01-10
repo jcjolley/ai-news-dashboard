@@ -76,7 +76,29 @@ export interface Article {
   engagement_fetched_at: string | null
 }
 
-export type SortOrder = 'recent' | 'engagement'
+export type SortOrder = 'recent' | 'top'
+export type TimePeriod = 'day' | 'week' | 'month' | 'year' | 'all'
+
+function getTimePeriodFilter(period: TimePeriod): string {
+  const now = new Date()
+  switch (period) {
+    case 'day':
+      now.setDate(now.getDate() - 1)
+      return `AND published_at >= '${now.toISOString()}'`
+    case 'week':
+      now.setDate(now.getDate() - 7)
+      return `AND published_at >= '${now.toISOString()}'`
+    case 'month':
+      now.setMonth(now.getMonth() - 1)
+      return `AND published_at >= '${now.toISOString()}'`
+    case 'year':
+      now.setFullYear(now.getFullYear() - 1)
+      return `AND published_at >= '${now.toISOString()}'`
+    case 'all':
+    default:
+      return ''
+  }
+}
 
 export interface ArticleInput {
   id: string
@@ -121,21 +143,24 @@ export function insertArticle(article: ArticleInput) {
   )
 }
 
-export function getArticles(sourceType?: string, limit = 100, offset = 0, sort: SortOrder = 'recent'): Article[] {
-  const orderBy = sort === 'engagement'
+export function getArticles(sourceType?: string, limit = 100, offset = 0, sort: SortOrder = 'recent', timePeriod: TimePeriod = 'all'): Article[] {
+  const orderBy = sort === 'top'
     ? 'ORDER BY COALESCE(engagement_score, 0) DESC, published_at DESC'
     : 'ORDER BY published_at DESC'
+
+  const timeFilter = sort === 'top' ? getTimePeriodFilter(timePeriod) : ''
 
   if (sourceType) {
     return db.query(`
       SELECT * FROM articles
-      WHERE source_type = ?
+      WHERE source_type = ? ${timeFilter}
       ${orderBy}
       LIMIT ? OFFSET ?
     `).all(sourceType, limit, offset) as Article[]
   }
   return db.query(`
     SELECT * FROM articles
+    WHERE 1=1 ${timeFilter}
     ${orderBy}
     LIMIT ? OFFSET ?
   `).all(limit, offset) as Article[]
