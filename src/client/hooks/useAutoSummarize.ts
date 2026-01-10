@@ -128,7 +128,9 @@ export function useAutoSummarize(
   useEffect(() => {
     abortRef.current = false
     processingRef.current = false
-    visibleIds.current.clear()
+    // Don't clear visibleIds - the IntersectionObserver keeps it up-to-date
+    // and registerRef handles cleanup when elements unmount.
+    // Clearing here causes a race condition where visible articles are forgotten.
 
     elementRefs.current.forEach((element) => {
       observerRef.current?.observe(element)
