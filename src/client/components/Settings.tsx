@@ -10,7 +10,7 @@ const TABS: { type: SourceType; label: string; namePlaceholder: string; valuePla
   { type: 'rss', label: 'RSS Feeds', namePlaceholder: 'Feed name', valuePlaceholder: 'https://example.com/feed.xml', valueLabel: 'URL' },
   { type: 'podcast', label: 'Podcasts', namePlaceholder: 'Podcast name', valuePlaceholder: 'https://example.com/podcast.rss', valueLabel: 'URL' },
   { type: 'reddit', label: 'Reddit', namePlaceholder: 'Display name', valuePlaceholder: 'MachineLearning', valueLabel: 'Subreddit' },
-  { type: 'youtube', label: 'YouTube', namePlaceholder: 'Channel name', valuePlaceholder: 'UCxxxxxxxx', valueLabel: 'Channel ID' },
+  { type: 'youtube', label: 'YouTube', namePlaceholder: 'Channel name (optional)', valuePlaceholder: 'https://youtube.com/@channel or UCxxxxxxxx', valueLabel: 'Channel URL or ID' },
   { type: 'hackernews', label: 'HN Keywords', namePlaceholder: 'Keyword', valuePlaceholder: 'GPT', valueLabel: 'Keyword' }
 ]
 
@@ -23,6 +23,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
   const [editName, setEditName] = useState('')
   const [editValue, setEditValue] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [resolveError, setResolveError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -30,18 +31,70 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
     }
   }, [isOpen, fetchSources])
 
+  // Resolve YouTube channel URL to get channel ID
+  const resolveYouTubeChannel = async (url: string): Promise<{ channelId: string; name: string | null } | null> => {
+    try {
+      const response = await fetch('/api/youtube/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to resolve channel')
+      }
+      return data
+    } catch (err) {
+      throw err
+    }
+  }
+
   const handleAdd = async () => {
-    if (!newName.trim() || !newValue.trim()) return
+    // For YouTube, only value is required (name is optional)
+    if (activeTab === 'youtube') {
+      if (!newValue.trim()) return
+    } else {
+      if (!newName.trim() || !newValue.trim()) return
+    }
 
     setSubmitting(true)
-    const success = await addSource({
-      type: activeTab,
-      name: newName.trim(),
-      value: newValue.trim()
-    })
-    if (success) {
-      setNewName('')
-      setNewValue('')
+    setResolveError(null)
+
+    try {
+      let name = newName.trim()
+      let value = newValue.trim()
+
+      // For YouTube, resolve the URL to get channel ID
+      if (activeTab === 'youtube' && !value.startsWith('UC')) {
+        const resolved = await resolveYouTubeChannel(value)
+        if (!resolved) {
+          setResolveError('Could not resolve YouTube channel')
+          setSubmitting(false)
+          return
+        }
+        value = resolved.channelId
+        // Use resolved name if user didn't provide one
+        if (!name && resolved.name) {
+          name = resolved.name
+        }
+      }
+
+      // For YouTube, ensure we have a name
+      if (activeTab === 'youtube' && !name) {
+        name = value // Use channel ID as fallback name
+      }
+
+      const success = await addSource({
+        type: activeTab,
+        name,
+        value
+      })
+      if (success) {
+        setNewName('')
+        setNewValue('')
+      }
+    } catch (err) {
+      setResolveError(err instanceof Error ? err.message : 'Failed to add source')
     }
     setSubmitting(false)
   }
@@ -123,9 +176,9 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {error && (
+          {(error || resolveError) && (
             <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg text-sm">
-              {error}
+              {error || resolveError}
             </div>
           )}
 
@@ -151,10 +204,10 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
               />
               <button
                 onClick={handleAdd}
-                disabled={submitting || !newName.trim() || !newValue.trim()}
+                disabled={submitting || !newValue.trim() || (activeTab !== 'youtube' && !newName.trim())}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Add
+                {submitting && activeTab === 'youtube' ? 'Resolving...' : 'Add'}
               </button>
             </div>
           </div>

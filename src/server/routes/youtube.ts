@@ -110,4 +110,72 @@ app.get('/', (c) => {
   return c.json(articles)
 })
 
+// Resolve a YouTube channel URL to get the channel ID and name
+app.post('/resolve', async (c) => {
+  const { url } = await c.req.json() as { url: string }
+
+  if (!url) {
+    return c.json({ error: 'URL is required' }, 400)
+  }
+
+  try {
+    // If it's already a channel ID (starts with UC), return it directly
+    if (url.startsWith('UC') && url.length === 24) {
+      return c.json({ channelId: url, name: null })
+    }
+
+    // Normalize the URL
+    let channelUrl = url
+    if (!url.startsWith('http')) {
+      channelUrl = `https://www.youtube.com/${url.startsWith('@') ? url : '@' + url}`
+    }
+
+    const response = await fetch(channelUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    })
+
+    if (!response.ok) {
+      return c.json({ error: `Failed to fetch channel page: ${response.status}` }, 400)
+    }
+
+    const html = await response.text()
+
+    // Extract channel ID from the page - look for various patterns
+    // Pattern 1: "channelId":"UCxxxxxxx"
+    let match = html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/)?.[1]
+
+    // Pattern 2: /channel/UCxxxxxxx in canonical or other URLs
+    if (!match) {
+      match = html.match(/\/channel\/(UC[a-zA-Z0-9_-]{22})/)?.[1]
+    }
+
+    // Pattern 3: "externalId":"UCxxxxxxx"
+    if (!match) {
+      match = html.match(/"externalId":"(UC[a-zA-Z0-9_-]{22})"/)?.[1]
+    }
+
+    if (!match) {
+      return c.json({ error: 'Could not find channel ID on page' }, 400)
+    }
+
+    // Try to extract channel name
+    const nameMatch = html.match(/<meta property="og:title" content="([^"]+)"/)
+      || html.match(/"author":"([^"]+)"/)
+      || html.match(/<title>([^<]+)<\/title>/)
+
+    let name = nameMatch?.[1] || null
+    // Clean up the name (remove " - YouTube" suffix if present)
+    if (name) {
+      name = name.replace(/ - YouTube$/, '').trim()
+    }
+
+    return c.json({ channelId: match, name })
+  } catch (error) {
+    console.error('Error resolving YouTube channel:', error)
+    return c.json({ error: String(error) }, 500)
+  }
+})
+
 export default app
