@@ -193,3 +193,154 @@ export function updateEngagement(
     [score, raw, type, new Date().toISOString(), id]
   )
 }
+
+// Sources table and functions
+
+export type SourceType = 'rss' | 'podcast' | 'reddit' | 'youtube' | 'hackernews'
+
+export interface Source {
+  id: number
+  type: SourceType
+  name: string
+  value: string
+  enabled: number
+  created_at: string
+  updated_at: string
+}
+
+export interface SourceInput {
+  type: SourceType
+  name: string
+  value: string
+  enabled?: number
+}
+
+export function initializeSources() {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS sources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      name TEXT NOT NULL,
+      value TEXT NOT NULL,
+      enabled INTEGER DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+
+  db.run(`CREATE INDEX IF NOT EXISTS idx_sources_type ON sources(type)`)
+  db.run(`CREATE INDEX IF NOT EXISTS idx_sources_enabled ON sources(enabled)`)
+
+  // Migrate from sources.json if table is empty
+  const count = db.query('SELECT COUNT(*) as count FROM sources').get() as { count: number }
+  if (count.count === 0) {
+    migrateSourcesFromJson()
+  }
+}
+
+function migrateSourcesFromJson() {
+  try {
+    const sourcesPath = new URL('../../../config/sources.json', import.meta.url).pathname
+    // On Windows, remove leading slash from path like /C:/...
+    const normalizedPath = process.platform === 'win32' && sourcesPath.startsWith('/')
+      ? sourcesPath.slice(1)
+      : sourcesPath
+    const sourcesJson = JSON.parse(require('fs').readFileSync(normalizedPath, 'utf-8'))
+    const now = new Date().toISOString()
+
+    // Migrate RSS feeds
+    for (const feed of sourcesJson.rss || []) {
+      addSource({ type: 'rss', name: feed.name, value: feed.url })
+    }
+
+    // Migrate podcasts
+    for (const podcast of sourcesJson.podcasts || []) {
+      addSource({ type: 'podcast', name: podcast.name, value: podcast.url })
+    }
+
+    // Migrate Reddit subreddits
+    for (const subreddit of sourcesJson.reddit || []) {
+      addSource({ type: 'reddit', name: `r/${subreddit}`, value: subreddit })
+    }
+
+    // Migrate YouTube channels
+    for (const channel of sourcesJson.youtube || []) {
+      addSource({ type: 'youtube', name: channel.name, value: channel.channelId })
+    }
+
+    // Migrate HackerNews keywords
+    for (const keyword of sourcesJson.hackernews?.keywords || []) {
+      addSource({ type: 'hackernews', name: keyword, value: keyword })
+    }
+
+    console.log('Migrated sources from JSON to database')
+  } catch (error) {
+    console.error('Failed to migrate sources from JSON:', error)
+  }
+}
+
+export function getSources(): Source[] {
+  return db.query('SELECT * FROM sources ORDER BY type, name').all() as Source[]
+}
+
+export function getSourcesByType(type: SourceType): Source[] {
+  return db.query('SELECT * FROM sources WHERE type = ? AND enabled = 1 ORDER BY name').all(type) as Source[]
+}
+
+export function getAllSourcesByType(type: SourceType): Source[] {
+  return db.query('SELECT * FROM sources WHERE type = ? ORDER BY name').all(type) as Source[]
+}
+
+export function getSourceById(id: number): Source | null {
+  return db.query('SELECT * FROM sources WHERE id = ?').get(id) as Source | null
+}
+
+export function addSource(source: SourceInput): number {
+  const now = new Date().toISOString()
+  const stmt = db.prepare(`
+    INSERT INTO sources (type, name, value, enabled, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `)
+  const result = stmt.run(source.type, source.name, source.value, source.enabled ?? 1, now, now)
+  return Number(result.lastInsertRowid)
+}
+
+export function updateSource(id: number, updates: Partial<SourceInput>): boolean {
+  const source = getSourceById(id)
+  if (!source) return false
+
+  const now = new Date().toISOString()
+  db.run(`
+    UPDATE sources SET
+      name = ?,
+      value = ?,
+      enabled = ?,
+      updated_at = ?
+    WHERE id = ?
+  `, [
+    updates.name ?? source.name,
+    updates.value ?? source.value,
+    updates.enabled ?? source.enabled,
+    now,
+    id
+  ])
+  return true
+}
+
+export function deleteSource(id: number): boolean {
+  const result = db.run('DELETE FROM sources WHERE id = ?', [id])
+  return result.changes > 0
+}
+
+export function toggleSource(id: number): boolean {
+  const source = getSourceById(id)
+  if (!source) return false
+
+  const now = new Date().toISOString()
+  db.run('UPDATE sources SET enabled = ?, updated_at = ? WHERE id = ?', [
+    source.enabled === 1 ? 0 : 1,
+    now,
+    id
+  ])
+  return true
+}

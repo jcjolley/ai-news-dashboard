@@ -1,8 +1,7 @@
 import { Hono } from 'hono'
 import { XMLParser } from 'fast-xml-parser'
-import { insertArticle, getArticles } from '../db/schema'
+import { insertArticle, getArticles, getSourcesByType } from '../db/schema'
 import { generateArticleId } from '../utils/hash'
-import sources from '../../../config/sources.json'
 
 const app = new Hono()
 const parser = new XMLParser({
@@ -77,10 +76,11 @@ async function fetchRSSFeed(url: string, name: string) {
 
 app.post('/refresh', async (c) => {
   const results: { source: string; count: number; error?: string }[] = []
+  const feeds = getSourcesByType('rss')
 
-  for (const feed of sources.rss) {
+  for (const feed of feeds) {
     try {
-      const articles = await fetchRSSFeed(feed.url, feed.name)
+      const articles = await fetchRSSFeed(feed.value, feed.name)
       for (const article of articles) {
         insertArticle(article)
       }

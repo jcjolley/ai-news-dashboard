@@ -1,8 +1,7 @@
 import { Hono } from 'hono'
 import { XMLParser } from 'fast-xml-parser'
-import { insertArticle, getArticles } from '../db/schema'
+import { insertArticle, getArticles, getSourcesByType } from '../db/schema'
 import { extractYouTubeViews } from '../services/engagement'
-import sources from '../../../config/sources.json'
 
 const app = new Hono()
 const parser = new XMLParser()
@@ -71,10 +70,11 @@ async function fetchYouTubeFeed(channelId: string, name: string) {
 app.post('/refresh', async (c) => {
   const results: { source: string; count: number; error?: string }[] = []
   const skipEngagement = c.req.query('skip_engagement') === 'true'
+  const channels = getSourcesByType('youtube')
 
-  for (const channel of sources.youtube) {
+  for (const channel of channels) {
     try {
-      const articles = await fetchYouTubeFeed(channel.channelId, channel.name)
+      const articles = await fetchYouTubeFeed(channel.value, channel.name)
 
       for (const article of articles) {
         // Skip engagement fetching during refresh to avoid timeouts

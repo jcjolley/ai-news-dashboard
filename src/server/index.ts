@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/bun'
-import { initializeDatabase, getArticles, markAsRead, markAsUnread, getArticleById, updateEngagement, type SortOrder, type TimePeriod } from './db/schema'
+import { initializeDatabase, initializeSources, getArticles, markAsRead, markAsUnread, getArticleById, updateEngagement, type SortOrder, type TimePeriod } from './db/schema'
 import { fetchEngagementForArticle } from './services/engagement'
 
 import feedsRoutes from './routes/feeds'
@@ -10,8 +10,10 @@ import redditRoutes from './routes/reddit'
 import hackernewsRoutes from './routes/hackernews'
 import youtubeRoutes from './routes/youtube'
 import summarizeRoutes from './routes/summarize'
+import sourcesRoutes from './routes/sources'
 
 initializeDatabase()
+initializeSources()
 
 const app = new Hono()
 
@@ -23,6 +25,7 @@ app.route('/api/reddit', redditRoutes)
 app.route('/api/hackernews', hackernewsRoutes)
 app.route('/api/youtube', youtubeRoutes)
 app.route('/api/summarize', summarizeRoutes)
+app.route('/api/sources', sourcesRoutes)
 
 app.get('/api/articles', (c) => {
   const source = c.req.query('source')

@@ -1,7 +1,6 @@
 import { Hono } from 'hono'
-import { insertArticle, getArticles } from '../db/schema'
+import { insertArticle, getArticles, getSourcesByType } from '../db/schema'
 import { normalizeEngagement } from '../services/engagement'
-import sources from '../../../config/sources.json'
 
 const app = new Hono()
 
@@ -42,7 +41,8 @@ app.post('/refresh', async (c) => {
     }
 
     const storyIds = await response.json() as number[]
-    const keywords = sources.hackernews.keywords
+    const keywordSources = getSourcesByType('hackernews')
+    const keywords = keywordSources.map(s => s.value)
     const now = new Date().toISOString()
 
     let count = 0

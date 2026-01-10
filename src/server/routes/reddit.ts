@@ -1,7 +1,6 @@
 import { Hono } from 'hono'
-import { insertArticle, getArticles } from '../db/schema'
+import { insertArticle, getArticles, getSourcesByType } from '../db/schema'
 import { normalizeEngagement } from '../services/engagement'
-import sources from '../../../config/sources.json'
 
 const app = new Hono()
 
@@ -70,16 +69,17 @@ async function fetchSubreddit(subreddit: string) {
 
 app.post('/refresh', async (c) => {
   const results: { source: string; count: number; error?: string }[] = []
+  const subreddits = getSourcesByType('reddit')
 
-  for (const subreddit of sources.reddit) {
+  for (const source of subreddits) {
     try {
-      const articles = await fetchSubreddit(subreddit)
+      const articles = await fetchSubreddit(source.value)
       for (const article of articles) {
         insertArticle(article)
       }
-      results.push({ source: `r/${subreddit}`, count: articles.length })
+      results.push({ source: source.name, count: articles.length })
     } catch (error) {
-      results.push({ source: `r/${subreddit}`, count: 0, error: String(error) })
+      results.push({ source: source.name, count: 0, error: String(error) })
     }
   }
 
