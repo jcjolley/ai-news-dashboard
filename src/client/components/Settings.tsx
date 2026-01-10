@@ -158,12 +158,12 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700 px-6 overflow-x-auto">
+        <div className="flex flex-shrink-0 border-b border-gray-200 dark:border-gray-700 px-6 overflow-x-auto">
           {TABS.map(tab => (
             <button
               key={tab.type}
               onClick={() => setActiveTab(tab.type)}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                 activeTab === tab.type
                   ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
