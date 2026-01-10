@@ -28,7 +28,7 @@ export default function App() {
   } = useNews()
 
   const [selectedSource, setSelectedSource] = useState('')
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false)
+  const [showUnreadOnly, setShowUnreadOnly] = useState(true)
   const [sortOrder, setSortOrder] = useState<SortOrder>('recent')
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('week')
   const [showTimePeriodDropdown, setShowTimePeriodDropdown] = useState(false)
