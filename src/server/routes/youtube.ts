@@ -70,23 +70,28 @@ async function fetchYouTubeFeed(channelId: string, name: string) {
 
 app.post('/refresh', async (c) => {
   const results: { source: string; count: number; error?: string }[] = []
+  const skipEngagement = c.req.query('skip_engagement') === 'true'
 
   for (const channel of sources.youtube) {
     try {
       const articles = await fetchYouTubeFeed(channel.channelId, channel.name)
 
-      // Fetch engagement for each video (limit concurrency to avoid rate limiting)
       for (const article of articles) {
-        try {
-          const engagement = await extractYouTubeViews(article.url)
-          if (engagement) {
-            article.engagement_score = engagement.score
-            article.engagement_raw = engagement.raw
-            article.engagement_type = engagement.type
-            article.engagement_fetched_at = new Date().toISOString()
+        // Skip engagement fetching during refresh to avoid timeouts
+        // Engagement can be fetched lazily via /api/articles/:id/fetch-engagement
+        if (!skipEngagement) {
+          try {
+            const engagement = await extractYouTubeViews(article.url)
+            if (engagement) {
+              article.engagement_score = engagement.score
+              article.engagement_raw = engagement.raw
+              article.engagement_type = engagement.type
+              article.engagement_fetched_at = new Date().toISOString()
+            }
+          } catch (err) {
+            // Don't block on engagement errors, just log and continue
+            console.error(`Failed to fetch engagement for ${article.url}:`, err)
           }
-        } catch (err) {
-          console.error(`Failed to fetch engagement for ${article.url}:`, err)
         }
         insertArticle(article)
       }

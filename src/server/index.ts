@@ -98,7 +98,11 @@ app.post('/api/refresh-all', async (c) => {
 
   for (const source of sources) {
     try {
-      const req = new Request('http://localhost/refresh', { method: 'POST' })
+      // Skip engagement for YouTube to avoid timeout (YouTube blocks page scraping)
+      const url = source.name === 'youtube'
+        ? 'http://localhost/refresh?skip_engagement=true'
+        : 'http://localhost/refresh'
+      const req = new Request(url, { method: 'POST' })
       const res = await source.route.fetch(req)
       results[source.name] = await res.json()
     } catch (error) {
@@ -137,7 +141,11 @@ app.post('/api/refresh-all-stream', async (c) => {
         ))
 
         try {
-          const req = new Request('http://localhost/refresh', { method: 'POST' })
+          // Skip engagement for YouTube to avoid timeout (YouTube blocks page scraping)
+          const url = source.name === 'youtube'
+            ? 'http://localhost/refresh?skip_engagement=true'
+            : 'http://localhost/refresh'
+          const req = new Request(url, { method: 'POST' })
           const res = await source.route.fetch(req)
           const result = await res.json() as { results?: { count: number }[] }
 
