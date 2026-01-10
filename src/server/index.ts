@@ -108,6 +108,98 @@ app.post('/api/refresh-all', async (c) => {
   return c.json(results)
 })
 
+app.post('/api/refresh-all-stream', async (c) => {
+  const encoder = new TextEncoder()
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const sources = [
+        { name: 'feeds', label: 'RSS Feeds', route: feedsRoutes },
+        { name: 'podcasts', label: 'Podcasts', route: podcastsRoutes },
+        { name: 'reddit', label: 'Reddit', route: redditRoutes },
+        { name: 'hackernews', label: 'Hacker News', route: hackernewsRoutes },
+        { name: 'youtube', label: 'YouTube', route: youtubeRoutes }
+      ]
+
+      for (let i = 0; i < sources.length; i++) {
+        const source = sources[i]
+
+        // Send "starting" event
+        controller.enqueue(encoder.encode(
+          `data: ${JSON.stringify({
+            type: 'progress',
+            source: source.label,
+            status: 'fetching',
+            index: i,
+            total: sources.length
+          })}\n\n`
+        ))
+
+        try {
+          const req = new Request('http://localhost/refresh', { method: 'POST' })
+          const res = await source.route.fetch(req)
+          const result = await res.json() as { results?: { count: number }[] }
+
+          // Send "complete" event
+          controller.enqueue(encoder.encode(
+            `data: ${JSON.stringify({
+              type: 'complete',
+              source: source.label,
+              count: result.results?.reduce((a: number, r: { count: number }) => a + r.count, 0) || 0,
+              index: i,
+              total: sources.length
+            })}\n\n`
+          ))
+        } catch (error) {
+          controller.enqueue(encoder.encode(
+            `data: ${JSON.stringify({
+              type: 'error',
+              source: source.label,
+              error: String(error),
+              index: i,
+              total: sources.length
+            })}\n\n`
+          ))
+        }
+      }
+
+      // Send "calculating engagement" event
+      controller.enqueue(encoder.encode(
+        `data: ${JSON.stringify({
+          type: 'engagement',
+          status: 'calculating'
+        })}\n\n`
+      ))
+
+      // Note: Engagement is already calculated during fetch for Reddit/HN
+      // This is a placeholder for any additional engagement processing
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Send "engagement complete" event
+      controller.enqueue(encoder.encode(
+        `data: ${JSON.stringify({
+          type: 'engagement',
+          status: 'complete'
+        })}\n\n`
+      ))
+
+      // Send "done" event
+      controller.enqueue(encoder.encode(
+        `data: ${JSON.stringify({ type: 'done' })}\n\n`
+      ))
+      controller.close()
+    }
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }
+  })
+})
+
 app.use('/*', serveStatic({ root: './dist/client' }))
 
 const port = parseInt(process.env.PORT || '3000')

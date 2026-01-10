@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNews, Article, type SortOrder } from './hooks/useNews'
 import { useAutoSummarize } from './hooks/useAutoSummarize'
 import Dashboard from './components/Dashboard'
+import RefreshModal from './components/RefreshModal'
 
 const SOURCE_TYPES = [
   { key: '', label: 'All Sources' },
@@ -19,7 +20,9 @@ export default function App() {
     refreshing,
     error,
     fetchArticles,
-    refreshAll,
+    refreshAllWithProgress,
+    refreshProgress,
+    closeRefreshModal,
     markAsRead,
     summarize
   } = useNews()
@@ -104,7 +107,7 @@ export default function App() {
                 )}
               </button>
               <button
-                onClick={refreshAll}
+                onClick={refreshAllWithProgress}
                 disabled={refreshing}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -190,6 +193,12 @@ export default function App() {
           registerRef={registerRef}
         />
       </main>
+
+      <RefreshModal
+        isOpen={refreshProgress.isOpen}
+        progress={refreshProgress}
+        onClose={closeRefreshModal}
+      />
     </div>
   )
 }
